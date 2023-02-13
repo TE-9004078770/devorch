@@ -67,5 +67,7 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 32008
+      port: 8080
       targetPort: 8080
+      nodePort: 32008
+  type: NodePort
