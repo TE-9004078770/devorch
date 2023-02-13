@@ -1,0 +1,71 @@
+# Start image capture on rpi4
+apiVersion: v1
+kind: Pod
+metadata:
+  name: capture-image-service
+  labels:
+    app.kubernetes.io/name: capture-image-service
+  annotations:
+    sidecar.istio.io/proxyCPU: 16m
+    sidecar.istio.io/proxyMemory: 64Mi
+    sidecar.istio.io/proxyCPULimit: 64m
+    sidecar.istio.io/proxyMemoryLimit: 256Mi
+spec:
+  nodeName: zcu102 # schedule pod to specific node
+  containers:
+  - name: capture-image-service
+    image: deviceorch.azurecr.io/capture-image-service:v0.1
+    securityContext:
+        privileged: true
+    imagePullPolicy: IfNotPresent
+    ports:
+      - containerPort: 8080
+        hostPort: 8080
+    volumeMounts:
+    - mountPath: /usr
+      name: usr
+    - mountPath: /dev
+      name: dev
+    - mountPath: /lib
+      name: lib
+    - mountPath: /run/udev
+      name: udev
+    - mountPath: /gallery
+      name: gallery
+  volumes:
+    - name: usr
+      hostPath:
+        path: /usr
+        type: Directory
+    - name: dev
+      hostPath:
+        path: /dev
+        type: Directory
+    - name: lib
+      hostPath:
+        path: /lib
+        type: Directory
+    - name: udev
+      hostPath:
+        path: /run/udev
+        type: Directory
+    - name: gallery
+      hostPath:
+        path: /gallery
+        type: Directory
+  imagePullSecrets:
+    - name: acr-secret
+---
+# Service for capture-image-service (by Suenaga)
+apiVersion: v1
+kind: Service
+metadata:
+  name: capture-image-service
+spec:
+  selector:
+    app.kubernetes.io/name: capture-image-service
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
