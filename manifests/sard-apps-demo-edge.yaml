@@ -11,7 +11,7 @@ metadata:
     sidecar.istio.io/proxyCPULimit: 64m
     sidecar.istio.io/proxyMemoryLimit: 256Mi
 spec:
-  nodeName: zcu102 # schedule pod to specific node
+  nodeName: sho-zcu102 # schedule pod to specific node
   containers:
   - name: capture-image-service
     image: deviceorch.azurecr.io/capture-image-service:v0.1
